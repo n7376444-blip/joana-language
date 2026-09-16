@@ -1,9 +1,10 @@
-operation double(x: Int) -> Int = x + x;
-operation negate(x: Int) -> Int = 0 - x;
-operation add(a: Int, b: Int) -> Int = a + b;
-flow main(value: Int) -> Int {
-    let a = double(value);
-    let b = negate(value);
-    let result = add(a, b);
+operation normalize(name: String) -> String = name;
+operation greet(name: String) -> String = "Hello, " + name;
+operation finish(message: String) -> String = message + "!";
+
+flow main(name: String) -> String {
+    let n = normalize(name);
+    let g = greet(n);
+    let result = finish(g);
     emit result;
 }

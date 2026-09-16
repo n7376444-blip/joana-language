@@ -1,5 +1,3 @@
-operation greet(name: String) -> String = "Hello, " + name;
-flow main(name: String) -> String {
-    let message = greet(name);
-    emit message;
+flow main() -> String {
+    emit "Hello, World!";
 }

@@ -1,3 +1,5 @@
-# Compiler architecture
+# Semantics
 
-The compiler separates parsing, semantic checks, graph construction, graph verification, topological ordering, and runtime execution. The public runtime API accepts only a graph whose status is `Verified`.
+The compiler resolves names, checks argument counts, enforces type compatibility, and rejects invalid graph structures.
+
+The graph is not a visualization layer. It is the structural description of the executable flow.

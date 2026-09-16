@@ -1,5 +1,10 @@
-operation greet(name: String) -> String = "Hello, " + name;
-flow main(value: Int) -> String {
-    let message = greet(value);
-    emit message;
+operation double(value: Int) -> Int = value + value;
+operation negate(value: Int) -> Int = 0 - value;
+operation add(left: Int, right: Int) -> Int = left + right;
+
+flow main(value: Int) -> Int {
+    let a = double(value);
+    let b = negate(value);
+    let result = add(a, b);
+    emit result;
 }

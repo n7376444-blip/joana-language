@@ -1,3 +1,5 @@
-# Syntax and semantics
+# Joana Language model
 
-The implemented syntax supports operation declarations, a `main` flow, typed parameters, `let` operation invocations, `emit`, literals, calls, and pure arithmetic/boolean/string expressions.
+This project implements a small research prototype of the language described in the approved MVP specification.
+
+The language is intentionally small: typed operations, operation invocations, an acyclic flow graph, and a sequential runtime.

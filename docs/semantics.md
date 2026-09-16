@@ -1,3 +1,14 @@
-# Semantics
+# Syntax
 
-Source order establishes scope and deterministic node identity. Dependency edges establish execution order. Independent nodes have no semantic ordering and are scheduled deterministically by source order in this MVP.
+The implemented syntax supports:
+
+- operation declarations
+- flow declarations
+- parameter lists with types
+- `let` bindings
+- `emit` statements
+- integer, string, and boolean literals
+- unary and binary expressions
+- operation calls
+
+The `main` flow is required.

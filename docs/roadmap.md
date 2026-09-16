@@ -1,5 +1,5 @@
-# Roadmap
+# AI-native boundary
 
-Implemented: MVP compiler, graph, verification, runtime, CLI, examples, and tests.
+The MVP does not execute LLMs or autonomous agents.
 
-Future: conditionals, effects, concurrency, richer types, persistent graph identity, and structured AI proposals.
+Future AI tooling may propose structured graph or operation changes, but those proposals must pass the normal compiler validation pipeline before being accepted.

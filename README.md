@@ -1,79 +1,143 @@
-# Joana Language
+#include "joana/joana.hpp"
 
-An experimental statically typed data-flow language with verified execution graphs.
+#include <cassert>
+#include <iostream>
+#include <string>
 
-## What is Joana?
+using namespace joana;
 
-Joana is a small C++20 research prototype in which operation invocations are compiled into typed, inspectable, statically verified execution graphs. It is not production-ready, formally verified, or an autonomous AI system.
+static void expect_ok(const std::string& source)
+{
+    auto result = compile(source);
+    if (!result.graph.has_value()) {
+        for (const auto& diagnostic : result.diagnostics) {
+            std::cerr << diagnostic.code << ": " << diagnostic.message << "\n";
+        }
+        assert(false && "expected compilation to succeed");
+    }
+    assert(result.graph->status == GraphStatus::Verified);
+}
 
-## Core idea
+static void expect_fail(const std::string& source, const std::string& code)
+{
+    auto result = compile(source);
+    bool found = false;
+    for (const auto& diagnostic : result.diagnostics) {
+        if (diagnostic.code == code) {
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        for (const auto& diagnostic : result.diagnostics) {
+            std::cerr << diagnostic.code << ": " << diagnostic.message << "\n";
+        }
+    }
+    assert(found && "expected specific compiler diagnostic");
+}
 
-```text
-source → lexer → parser/AST → semantic analysis → graph construction
-       → graph verification → topological order → runtime
-```
+int main()
+{
+    expect_ok(R"(
+flow main() -> String {
+    emit "Hello, World!";
+}
+)"
+    );
 
-Operation declarations describe pure reusable behavior. Each operation invocation in `main` becomes a real graph node; references between values become typed dependency edges. The runtime accepts only a graph marked `Verified`.
-
-```joana
+    expect_ok(R"(
 operation greet(name: String) -> String = "Hello, " + name;
 
 flow main(name: String) -> String {
     let message = greet(name);
     emit message;
 }
-```
+)"
+    );
 
-## Build
+    expect_ok(R"(
+operation normalize(name: String) -> String = name;
+operation greet(name: String) -> String = "Hello, " + name;
+operation finish(message: String) -> String = message + "!";
 
-```sh
-cmake -S . -B build
-cmake --build build
-ctest --test-dir build --output-on-failure
-```
+flow main(name: String) -> String {
+    let n = normalize(name);
+    let g = greet(n);
+    let result = finish(g);
+    emit result;
+}
+)"
+    );
 
-The executable is `build/joana` (or `build/Debug/joana` on some generators).
+    expect_ok(R"(
+operation double(value: Int) -> Int = value + value;
+operation negate(value: Int) -> Int = 0 - value;
+operation add(left: Int, right: Int) -> Int = left + right;
 
-## Run
+flow main(value: Int) -> Int {
+    let a = double(value);
+    let b = negate(value);
+    let result = add(a, b);
+    emit result;
+}
+)"
+    );
 
-```sh
-build/joana examples/hello.joana
-build/joana --check examples/greet.joana
-build/joana --graph examples/dependencies.joana
-```
+    expect_ok(R"(
+operation add(left: Int, right: Int) -> Int = left + right;
 
-For flows with inputs, values are read from standard input in declared order.
+flow main() -> Int {
+    let result = add(2, 3);
+    emit result;
+}
+)"
+    );
 
-## Graph model
+    expect_fail(R"(
+flow main() -> String {
+    emit missing;
+}
+)"
+    , "UNDEFINED_VALUE");
 
-A graph node is an operation invocation (`main.N0`, `main.N1`, ...). Ports carry `Int`, `Bool`, or `String` values. An edge means that a producer value must be available before its consumer operation executes. Flow inputs and outputs are value sources/sinks, not operation nodes. Graph construction preserves source locations and deterministic source-order node IDs; execution uses a deterministic topological order.
+    expect_fail(R"(
+flow main(value: Int) -> Int {
+    let result = unknown(value);
+    emit result;
+}
+)"
+    , "UNDEFINED_OPERATION");
 
-## Verification
+    expect_fail(R"(
+operation greet(name: String) -> String = "Hello, " + name;
 
-The implementation checks names, operation existence, arity, types, missing inputs, invalid output types, duplicate bindings, recursive operation calls, graph endpoints, cycles, and unreachable computations. Unreachable computations are warnings; the other listed violations are errors. “Verified” means these static rules succeeded, not that arbitrary program correctness was proved.
+flow main(value: Int) -> String {
+    let message = greet(value);
+    emit message;
+}
+)"
+    , "TYPE_MISMATCH");
 
-## Runtime
+    expect_fail(R"(
+operation make_number() -> Int = 42;
 
-The runtime is deterministic and sequential. It binds graph inputs, evaluates nodes in topological order, stores values, and returns the graph output. It receives `VerifiedFlowGraph` only; unverified graphs are rejected by the public execution API.
+flow main() -> String {
+    let value = make_number();
+    emit value;
+}
+)"
+    , "OUTPUT_TYPE_MISMATCH");
 
-## AI-native boundary
+    expect_fail(R"(
+operation loop(value: Int) -> Int = loop(value);
 
-No AI or LLM is executed by the MVP. The future research direction is a structured proposal interface through which a human or AI tool could propose typed operation/graph changes. Such proposals would pass through the same compiler validation and human review before execution.
+flow main(value: Int) -> Int {
+    let result = loop(value);
+    emit result;
+}
+)"
+    , "GRAPH_CYCLE");
 
-## Current MVP status
-
-Implemented: lexer, source locations, parser and AST, semantic checks, typed graph construction, verification, topological ordering, sequential pure runtime, diagnostics, CLI, graph dump, examples, and automated tests.
-
-Proposed/future: conditionals, loops, effects, concurrency, persistent graph identity, structured AI proposals, and richer type systems.
-
-## Repository
-
-`include/joana/` contains the public compiler/runtime API; `src/` contains implementation and CLI; `tests/` contains executable tests; `examples/` contains programs; `docs/` records the model and limitations.
-
-## Research question
-
-Can a programming language make program dependencies explicit enough that compiler-generated execution graphs become a first-class artifact for human inspection, verification, and future AI-assisted development?
-
-## License
-
-MIT. See `LICENSE`.
+    std::cout << "joana_tests: all tests passed\n";
+    return 0;
+}

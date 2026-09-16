@@ -1,3 +1,10 @@
-flow main() -> String {
-    emit "Hello, World!";
-}
+# Architecture diagram
+
+```text
+Source
+  -> Lexer
+  -> Parser / AST
+  -> Semantic Analysis
+  -> Verified Flow Graph
+  -> Runtime
+```

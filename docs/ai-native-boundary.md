@@ -1,3 +1,7 @@
-# AI-native boundary
+# Verification
 
-No AI runtime is implemented. Future tooling may submit structured typed graph proposals to the same compiler validation boundary, followed by human review.
+Verification means successful static validation against explicit compiler rules.
+
+This includes names, argument arity, types, graph endpoints, cycle detection, and output validation.
+
+It does not mean formal proof of arbitrary program correctness.

@@ -1,3 +1,19 @@
-# Architecture
+# Roadmap
 
-Joana is organized as lexer → parser/AST → semantic analysis → graph construction and verification → deterministic runtime. The graph is executable and typed; it is not a visualization layer.
+Implemented in this repository:
+- lexer
+- parser
+- semantic analysis
+- graph verification
+- runtime
+- CLI
+- tests
+
+Future research work:
+- conditionals
+- loops
+- richer type systems
+- concurrency
+- external effects
+- persistent graph identity
+- structured AI proposals
