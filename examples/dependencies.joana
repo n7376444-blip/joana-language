@@ -1,0 +1,9 @@
+operation normalize(name: String) -> String = name;
+operation greet(name: String) -> String = "Hello, " + name;
+operation finish(message: String) -> String = message + "!";
+flow main(name: String) -> String {
+    let n = normalize(name);
+    let g = greet(n);
+    let result = finish(g);
+    emit result;
+}

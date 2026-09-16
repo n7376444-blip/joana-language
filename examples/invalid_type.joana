@@ -1,0 +1,5 @@
+operation greet(name: String) -> String = "Hello, " + name;
+flow main(value: Int) -> String {
+    let message = greet(value);
+    emit message;
+}

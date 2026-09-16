@@ -1,0 +1,9 @@
+operation double(x: Int) -> Int = x + x;
+operation negate(x: Int) -> Int = 0 - x;
+operation add(a: Int, b: Int) -> Int = a + b;
+flow main(value: Int) -> Int {
+    let a = double(value);
+    let b = negate(value);
+    let result = add(a, b);
+    emit result;
+}

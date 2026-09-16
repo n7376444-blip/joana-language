@@ -1,0 +1,3 @@
+flow main() -> String {
+    emit "Hello, World!";
+}
